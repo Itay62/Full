@@ -151,14 +151,6 @@ def delete_post(id):
     return resp
 
 
-# @app.route('/post-editing/<int:id>', methods=['PUT', 'DELETE'])
-# def manage_edit(id):
-#     if request.method == 'PUT':
-#         return edit_post(id)
-#     else:
-#         return delete_post(id)
-
-
 @app.route('/post/<int:id>/comments', methods=['GET', 'POST'])
 def manage_comments_requests(id):
     if request.method == 'GET':
