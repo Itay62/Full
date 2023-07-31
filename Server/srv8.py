@@ -51,7 +51,7 @@ pool = mysql.connector.pooling.MySQLConnectionPool(
 
 
 app = Flask(__name__,
-            static_folder='C:/Users/itay6/HaToaar/YearIII/SemesterII/FullStack/Ex03/my-app/website_react/build',
+            static_folder='C:/Users/itay6/HaToaar/YearIII/SemesterII/FullStack/FinalExercise/build',
             static_url_path='/')
 
 # 'C:/Users/itay6/HaToaar/YearIII/SemesterII/FullStack/Ex03/my-app/website_react/build'
@@ -98,7 +98,16 @@ def logout():
     return resp
 
 
-@app.route('/post/<int:id>', methods=['GET'])
+@app.route('/post/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def manage_post(id):
+    if request.method == 'GET':
+        return get_post(id)
+    elif request.method == 'PUT':
+        return edit_post(id)
+    else:
+        return delete_post(id)
+
+
 def get_post(id):
     db = pool.get_connection()
     print(id)
@@ -112,14 +121,6 @@ def get_post(id):
     db.close()
     header = ['id', 'title', 'body', 'created_at', 'img', 'author']
     return json.dumps(dict(zip(header, record)), cls=DateTimeEncoder)
-
-
-@app.route('/post-editing/<int:id>', methods=['PUT', 'DELETE'])
-def manage_edit(id):
-    if request.method == 'PUT':
-        return edit_post(id)
-    else:
-        return delete_post(id)
 
 
 def edit_post(id):
@@ -148,6 +149,14 @@ def delete_post(id):
     db.close()
     resp = make_response()
     return resp
+
+
+# @app.route('/post-editing/<int:id>', methods=['PUT', 'DELETE'])
+# def manage_edit(id):
+#     if request.method == 'PUT':
+#         return edit_post(id)
+#     else:
+#         return delete_post(id)
 
 
 @app.route('/post/<int:id>/comments', methods=['GET', 'POST'])

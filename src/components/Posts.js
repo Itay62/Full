@@ -53,27 +53,34 @@ const Posts = () => {
       });
   }, []);
 
-  const handleAddComment = (postId, commentText, commentAuthor) => {
-    const commentData = {
-      text: commentText,
-      author: commentAuthor,
-    };
+  const handleAddComment = (postId) => {
+    console.log("logged in id is:");
+    if (loggedInUserId) {
+      const commentText = prompt("Enter your comment:");
+      const commentAuthor = prompt("Enter your name:");
+      const commentData = {
+        text: commentText,
+        author: commentAuthor,
+      };
 
-    axios
-      .post(`/post/${postId}/comments`, commentData)
-      .then((response) => {
-        const newComment = response.data;
-        const updatedComments = { ...comments };
-        if (updatedComments[postId]) {
-          updatedComments[postId] = [...updatedComments[postId], newComment];
-        } else {
-          updatedComments[postId] = [newComment];
-        }
-        setComments(updatedComments);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      axios
+        .post(`/post/${postId}/comments`, commentData)
+        .then((response) => {
+          const newComment = response.data;
+          const updatedComments = { ...comments };
+          if (updatedComments[postId]) {
+            updatedComments[postId] = [...updatedComments[postId], newComment];
+          } else {
+            updatedComments[postId] = [newComment];
+          }
+          setComments(updatedComments);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      alert("You need to log in to add a comment.");
+    }
   };
   // You are shown an 'Edit' button only if you are the author of this post
   const canEditPost = (post) => {
@@ -114,9 +121,7 @@ const Posts = () => {
             <div>
               <button
                 onClick={() => {
-                  const commentText = prompt("Enter your comment:");
-                  const commentAuthor = prompt("Enter your name:");
-                  handleAddComment(post.id, commentText, commentAuthor);
+                  handleAddComment(post.id);
                 }}
               >
                 Add Comment
