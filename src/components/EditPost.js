@@ -33,7 +33,7 @@ function EditPost() {
   };
 
   const editPost = () => {
-    const url = `/post-editing/${id}`;
+    const url = `/post/${id}`;
     const data = {
       title: title,
       body: body,
@@ -52,7 +52,7 @@ function EditPost() {
 
   const deletePost = () => {
     axios
-      .delete(`/post-editing/${id}`)
+      .delete(`/post/${id}`)
       .then((response) => {
         setResp("Success, post deleted!");
         navigate("/");
