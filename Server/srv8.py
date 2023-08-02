@@ -69,7 +69,6 @@ def about_me():
     cursor = db.cursor()
     cursor.execute(query)
     record = cursor.fetchone()
-    print(record)
     cursor.close()
     db.close()
     if not record:
@@ -110,13 +109,11 @@ def manage_post(id):
 
 def get_post(id):
     db = pool.get_connection()
-    print(id)
     query = "select id, title, body, created_at, img, author from posts where id = %s"
     values = (id,)
     cursor = db.cursor()
     cursor.execute(query, values)
     record = cursor.fetchone()
-    print(record)
     cursor.close()
     db.close()
     header = ['id', 'title', 'body', 'created_at', 'img', 'author']
@@ -143,7 +140,6 @@ def delete_post(id):
     query = "DELETE FROM posts WHERE id = %s"
     values = (id, )
     cursor.execute(query, values)
-    print("Deleted post")
     db.commit()
     cursor.close()
     db.close()
@@ -180,7 +176,6 @@ def get_post_comments(id):
 
 
 def add_comment(id):
-    print(id)
     data = request.get_json()
     comment_text = data['text']
     comment_author = data['author']
@@ -219,7 +214,6 @@ def get_all_posts():
     records = cursor.fetchall()
     cursor.close()
     db.close()
-    print(records)
     header = ['id', 'title', 'body', 'user_id', 'created_at', 'img', 'author']
     data = []
     for r in records:
@@ -232,7 +226,6 @@ def get_all_posts():
 def add_post():
     user_id = check_login()
     data = request.get_json()
-    print(data)
     db = pool.get_connection()
     query = "insert into posts (title, body ,user_id, author) values (%s, %s, %s, %s)"
     values = (data['title'], data['body'], user_id, data['author'])
@@ -248,7 +241,6 @@ def add_post():
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    print(data)
     db = pool.get_connection()
     query = "select username from users where username = %s"
     values = (data['sign_user'], )
@@ -256,7 +248,6 @@ def signup():
     cursor.execute(query, values)
     record = cursor.fetchone()
     cursor.close()
-    print(record)
 
     if record:  # user already exists
         abort(401)
@@ -275,7 +266,7 @@ def signup():
 
 
 @app.route('/login', methods=['POST', 'GET'])
-def manage_login_posts():
+def manage_login():
     if request.method == 'GET':
         return check_login()
     else:
@@ -284,7 +275,6 @@ def manage_login_posts():
 
 def login():
     data = request.get_json()
-    print(data)
     db = pool.get_connection()
     query = "select id, username, password from users where username=%s"
     values = (data['user'], )
@@ -292,7 +282,6 @@ def login():
     cursor.execute(query, values)
     record = cursor.fetchone()
     cursor.close()
-    print(record)
     if not record:
         print("no instance of this user")
         abort(401)
@@ -339,6 +328,22 @@ def check_login():
         abort(401)
     db = pool.get_connection()
     query = "select user_id from sessions where session_id = %s"
+    values = (session_id, )
+    cursor = db.cursor()
+    cursor.execute(query, values)
+    record = cursor.fetchone()
+    cursor.close()
+    db.close()
+    if not record:
+        abort(401)
+    return str(record[0])
+
+
+@app.route('/logged_in_username', methods=['GET'])
+def get_logged_in_username():
+    session_id = request.cookies.get("session_id")
+    db = pool.get_connection()
+    query = "SELECT u.username FROM sessions s JOIN users u ON s.user_id = u.id where s.session_id = %s"
     values = (session_id, )
     cursor = db.cursor()
     cursor.execute(query, values)

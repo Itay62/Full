@@ -7,6 +7,8 @@ import { NavLink } from "react-router-dom";
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const [commentAuthor, setCommentAuthor] = useState(null);
+  const [postIdToAddComment, setPostIdToAddComment] = useState(null);
   const [comments, setComments] = useState({});
 
   useEffect(() => {
@@ -54,26 +56,12 @@ const Posts = () => {
   }, []);
 
   const handleAddComment = (postId) => {
-    console.log("logged in id is:");
     if (loggedInUserId) {
-      const commentText = prompt("Enter your comment:");
-      const commentAuthor = prompt("Enter your name:");
-      const commentData = {
-        text: commentText,
-        author: commentAuthor,
-      };
-
       axios
-        .post(`/post/${postId}/comments`, commentData)
+        .get("/logged_in_username")
         .then((response) => {
-          const newComment = response.data;
-          const updatedComments = { ...comments };
-          if (updatedComments[postId]) {
-            updatedComments[postId] = [...updatedComments[postId], newComment];
-          } else {
-            updatedComments[postId] = [newComment];
-          }
-          setComments(updatedComments);
+          setCommentAuthor(response.data);
+          setPostIdToAddComment(postId);
         })
         .catch((error) => {
           console.error(error);
@@ -82,9 +70,40 @@ const Posts = () => {
       alert("You need to log in to add a comment.");
     }
   };
+
+  useEffect(() => {
+    // This effect will be triggered whenever commentAuthor changes
+    // When commentAuthor changes, we can proceed with adding the comment
+    if (commentAuthor !== null) {
+      const commentText = prompt("Enter your comment:");
+      const commentData = {
+        text: commentText,
+        author: commentAuthor,
+      };
+
+      axios
+        .post(`/post/${postIdToAddComment}/comments`, commentData)
+        .then((response) => {
+          const newComment = response.data;
+          const updatedComments = { ...comments };
+          if (updatedComments[postIdToAddComment]) {
+            updatedComments[postIdToAddComment] = [
+              ...updatedComments[postIdToAddComment],
+              newComment,
+            ];
+          } else {
+            updatedComments[postIdToAddComment] = [newComment];
+          }
+          setComments(updatedComments);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [commentAuthor, postIdToAddComment]);
+
   // You are shown an 'Edit' button only if you are the author of this post
   const canEditPost = (post) => {
-    console.log(post.user_id);
     return post.user_id === loggedInUserId;
   };
 
