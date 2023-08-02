@@ -54,8 +54,6 @@ app = Flask(__name__,
             static_folder='C:/Users/itay6/HaToaar/YearIII/SemesterII/FullStack/FinalExercise/build',
             static_url_path='/')
 
-# 'C:/Users/itay6/HaToaar/YearIII/SemesterII/FullStack/Ex03/my-app/website_react/build'
-
 
 @app.route('/')
 def index():
